@@ -73,11 +73,23 @@ class TestPointsInWay (TestCase):
         self.assertEqual (centerlines.points_in_way (line, way), [])
 
 
-class TestRadialPoints (TestCase):
+
+class TestSynteticRadialPoints (TestCase):
     # it doesn't use real skeletons or medials
+
+    def check_radials (self, radials, expected):
+        for m_index, medial in enumerate (radials):
+            for end_index, end in enumerate (medial):
+                for p_index, point in enumerate (end):
+                    a=  radials[m_index][end_index][p_index]
+                    b= expected[m_index][end_index]
+                    # points can be in any order, so test belongness (???) only
+                    self.assertIn (a, b)
+
 
     def testSimple (self):
         # simple rectangle with >--< skel and -- medial
+        # yes, this is the simple example :)
         way= Polygon (( (0, 0), (4, 0), (4, 2), (0, 2), (0, 0) ))
         skel_points= (( (0, 0), (1, 1) ),
                       ( (1, 1), (0, 2) ),
@@ -89,19 +101,40 @@ class TestRadialPoints (TestCase):
         medials_points= (( (1, 1), (3, 1) ), )
         medials= MultiLineString (medials_points)
 
-        # notice they are the 4 points from way, but separated by medial ends
-        expected= [ ([ Point (0, 0), Point (0, 2) ],
-                     [ Point (4, 0), Point (4, 2) ]) ]
+        radials= centerlines.radial_points (way, skel, medials)
+
+        # notice they are the 4 points from way, but partitioned by medial ends
+        expected= [ ([ Point (0, 0), Point (0, 2) ],    # start
+                     [ Point (4, 0), Point (4, 2) ]) ]  # end
+        self.check_radials (radials, expected)
+
+    def testTShape (self):
+        way= Polygon (( (0, 0), (6, 0), (6, 2),
+                        (4, 2), (4, 5), (2, 5),
+                        (2, 2), (0, 2), (0, 0) ))
+        skel_points= (( (0, 0), (1, 1) ),
+                      ( (1, 1), (0, 2) ),
+                      ( (1, 1), (3, 1) ),
+                      ( (3, 1), (5, 1) ),
+                      ( (5, 1), (6, 2) ),
+                      ( (6, 0), (5, 1) ),
+                      ( (3, 1), (2, 2) ),
+                      ( (3, 1), (4, 2) ),
+                      ( (3, 1), (3, 4) ),
+                      ( (3, 4), (2, 5) ),
+                      ( (3, 4), (4, 5) ))
+        skel= MultiLineString (skel_points)
+        medials_points= (( (1, 1), (3, 1) ),
+                         ( (3, 1), (3, 4) ),
+                         ( (3, 1), (5, 1) ))
+        medials= MultiLineString (medials_points)
 
         radials= centerlines.radial_points (way, skel, medials)
 
-        for m_index, medial in enumerate (radials):
-            for end_index, end in enumerate (medial):
-                for p_index, point in enumerate (end):
-                    a=  radials[m_index][end_index][p_index]
-                    b= expected[m_index][end_index]
-                    # points can be in any order, so test belongness (???) only
-                    self.assertIn (a, b)
+        expected= [ ([ Point (0, 0), Point (0, 2) ], [  ]),
+                    ([  ], [ Point (4, 5), Point (2, 5) ]),
+                    ([  ], [ Point (6, 2), Point (6, 0) ])]
+        self.check_radials (radials, expected)
 
 
 class TestMiddlePoint (TestCase):

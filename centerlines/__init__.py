@@ -146,8 +146,10 @@ def radial_points (way, skel, medials):
 
     for line in skel.geoms:
         for m_index, (start, end) in enumerate (ends):
-            get_radial_points (start, 0, m_index, line)
-            get_radial_points (end,   1, m_index, line)
+            if start is not None:
+                get_radial_points (start, 0, m_index, line)
+            if end is not None:
+                get_radial_points (end,   1, m_index, line)
 
     return radial_points
 

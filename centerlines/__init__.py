@@ -79,6 +79,7 @@ def medial_in_skel (skel, medial):
         if line.equals (medial.geoms[0]):
             return index
 
+
 def radials (skel, medial):
     """Finds the LineStrings in skel that radiate from the ends of the medial."""
     start= Point (medial.geoms[0].coords[0])
@@ -150,11 +151,13 @@ def radial_points (way, skel, medials):
 
     return radial_points
 
+
 # but not really, because the computations are done in Point()s anyways
 def middle_point (p1, p2):
     """Returns the point between p1 and p2"""
     # Point does not have + or / defined!
     return Point (*[ (p1.coords[0][i]+p2.coords[0][i])/2 for i in (0, 1) ])
+
 
 # finally we get somewhere
 def extend_medial (way, skel, medial):
@@ -167,6 +170,7 @@ def extend_medial (way, skel, medial):
     # so it should be
     # [ middle_point (p1, p2), start, ..., end, middle_point (p3, p4) ]
     return LineString ([ middle_point (p1, p2), *medial.coords, middle_point (p3, p4) ])
+
 
 def write (file_name, line):
     """Writes the LineString to the given filename, appending if the file already

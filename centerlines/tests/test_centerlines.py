@@ -22,6 +22,7 @@ class TestLineEnds (TestCase):
 
         self.assertEqual (ends, ( (0, 0), (2, 1) ))
 
+
 class TestMedialsEnds (TestCase):
 
     def testSimple (self):

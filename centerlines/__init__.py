@@ -123,14 +123,6 @@ def medials_ends (medials):
     return ends
 
 
-# in fact I need something more specific
-def radial_points (way, skel, medial):
-    """Finds the points on the radials that are on the way."""
-    start= Point (medial.coords[0])
-    end= Point (medial.coords[-1])
-    radial_points= [[], []]
-
-
 def points_in_way (line, way):
     """Returns the points in line that are in way too."""
     points= [ Point (p) for p in line.coords ]

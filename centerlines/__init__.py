@@ -137,21 +137,24 @@ def points_in_way (line, way):
     return [ p for p in points if p.touches (way) ]
 
 
-    for line in skel.geoms:
-        # ignore medial
-        # NOTE: since medials are now LineString, this is no longer True
-        # except in the most simple case
-        if line.equals (medial):
-            continue
+def radial_points (way, skel, medials):
+    """Finds the points on the radials that are on the way.
+    Returns a list of (tuples containing (a list of points) for each of start,
+    end) for each medial."""
+    ends= medials_ends (medials)
+    radial_points= [ ([], []) for medial in medials ]
 
-        if line.touches (start):
+    def get_radial_points (end, end_index, m_index, line):
+        # the rest of the params are taken from the scope
+        if line.touches (end):
             points= points_in_way (line, way)
             if len (points)==1: # there might be none!
-                radial_points[0].append (points[0])
-        elif line.touches (end):
-            points= points_in_way (line, way)
-            if len (points)==1: # there might be none!
-                radial_points[1].append (points[0])
+                radial_points[m_index][end_index].append (points[0])
+
+    for line in skel.geoms:
+        for m_index, (start, end) in enumerate (ends):
+            get_radial_points (start, 0, m_index, line)
+            get_radial_points (end,   1, m_index, line)
 
     return radial_points
 

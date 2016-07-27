@@ -15,6 +15,7 @@ import fiona.crs
 
 import codecs
 import errno
+from collections import OrderedDict
 
 # the following list of riverbanks has some, but not all the usecase tests
 # we want to solve, but I will be expanding as I find new examples
@@ -194,7 +195,8 @@ def write (file_name, line):
     """Writes the LineString to the given filename, appending if the file already
     exists, or creating a new file if not."""
     crs= fiona.crs.from_epsg (900913)
-    schema= dict (geometry='LineString', properties={})
+    properties= OrderedDict ([ ('FID', 'int:11') ])
+    schema= dict (geometry='LineString', properties=properties)
     driver= 'ESRI Shapefile'
 
     try:
@@ -205,6 +207,6 @@ def write (file_name, line):
 
     # prepare the record
     r= r= dict (geometry=dict (type='LineString', coordinates=line.coords),
-                properties={})
+                properties=properties)
     f.write (r)
     f.close ()

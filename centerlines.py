@@ -76,33 +76,6 @@ class PgMedial (Base):
     way= sqla.Column (geoalchemy2.Geometry('POLYGON'))
     medial= sqla.Column (geoalchemy2.Geometry('POLYGON'))
 
-# duration: 98509.429 ms
-# rb_row= s.query (OSM_Polygons).filter (OSM_Polygons.osm_id==147639890).first()
-# duration: 97956.329 ms
-# skel_row= s.query (PgSkel).filter (PgSkel.osm_id==147639890).first()
-# duration: 98038.505 ms
-# medial_row= s.query (PgMedial).filter (PgMedial.osm_id==147639890).first()
-
-# duration: 438905.214 ms
-# create index planet_osm_polygon_osm_id on planet_osm_polygon (osm_id);
-# duration: negligible :)
-# foo= s.query (PgMedial).filter (PgMedial.osm_id==147639896).first()
-
-# Out[38]: 'POLYGON ((661994.3 5329434.18,
-#                     661995.1899999999 5329436.47,
-#                     662006.21 5329433.42,
-#                     662005.66 5329431.28,
-#                     661994.3 5329434.18))'
-# rb= shapely.wkb.loads (codecs.decode (str (rb_row.way), 'hex'))
-# Out[39]: 'MULTILINESTRING ((661994.3 5329434.18, 661995.9207244834 5329435.013669997),
-#                            (662005.66 5329431.28, 662004.8565612 5329432.636764912),
-#                            (662006.21 5329433.42, 662004.8565612 5329432.636764912),
-#                            (661995.1899999999 5329436.47, 661995.9207244834 5329435.013669997),
-#                            (662004.8565612 5329432.636764912, 661995.9207244834 5329435.013669997))'
-# skel= shapely.wkb.loads (codecs.decode (str (skel_row.skel), 'hex'))
-# Out[40]: 'MULTILINESTRING ((662004.8565612 5329432.636764912, 661995.9207244834 5329435.013669997))'
-# medial= shapely.wkb.loads (codecs.decode (str (medial_row.medial), 'hex'))
-
 def way_skel_medial (osm_id):
     def get (table, osm_id):
         return s.query (table).filter (table.osm_id==osm_id).first ()

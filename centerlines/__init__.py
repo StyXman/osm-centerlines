@@ -130,9 +130,12 @@ def radial_points (way, skel, medial):
     end= Point (medial.coords[-1])
     radial_points= [[], []]
 
-    def points_in_way (line, way):
-        points= [ Point (p) for p in line.coords ]
-        return [ p for p in points if p.touches (way) ]
+
+def points_in_way (line, way):
+    """Returns the points in line that are in way too."""
+    points= [ Point (p) for p in line.coords ]
+    return [ p for p in points if p.touches (way) ]
+
 
     for line in skel.geoms:
         # ignore medial

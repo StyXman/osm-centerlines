@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import centerlines
 
-from shapely.geometry import LineString, MultiLineString, Point
+from shapely.geometry import LineString, MultiLineString, Point, Polygon
 
 class TestLineEnds (TestCase):
 
@@ -47,6 +47,17 @@ class TestMedialsEnds (TestCase):
         ends= centerlines.medials_ends (medials)
 
         self.assertEqual (ends, [ [Point (-1, 0)], [], [Point (2, 1)], [Point (0, 1)] ])
+
+
+class TestPointsInWay (TestCase):
+
+    def testNone (self):
+        way= Polygon (( (0, 0), (4, 0), (4, 2), (0, 2), (0, 0) ))
+        line= LineString (( (1, 1), (3, 3) ))
+
+        self.assertEqual (centerlines.points_in_way (line, way), [])
+
+
 
 class TestMiddlePoint (TestCase):
 

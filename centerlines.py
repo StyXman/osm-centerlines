@@ -181,20 +181,20 @@ def extend_medial (way, skel, medial):
     # and p3, p4 to end
     # so it should be
     # [ middle_point (p1, p2), start, ..., end, middle_point (p3, p4) ]
-    return LineString ([ middle_point (p1, p2), *medial.geoms[0].coords, middle_point (p3, p4) ])
+    return LineString ([ middle_point (p1, p2), *medial.coords, middle_point (p3, p4) ])
 
 def write (file_name, line):
     """Writes the LineString to the given filename, appending if the file already
     exists, or creating a new file if not."""
+    crs= fiona.crs.from_epsg (900913)
+    schema= dict (geometry='LineString', properties={})
+    driver= 'ESRI Shapefile'
+
     try:
-        f= fiona.open (file_name, 'a', driver='ESRI Shapefile',
-                       crs=fiona.crs.from_epsg (900913),
-                       schema=dict (geometry='LineString', properties={}))
+        f= fiona.open (file_name, 'a', driver=driver, crs=crs, schema=schema)
     except OSError as e:
         # the file does not exist, create a new one
-        f= fiona.open (file_name, 'w', driver='ESRI Shapefile',
-                       crs=fiona.crs.from_epsg (900913),
-                       schema=dict (geometry='LineString', properties={}))
+        f= fiona.open (file_name, 'w', driver=driver, crs=crs, schema=schema)
 
     # prepare the record
     r= r= dict (geometry=dict (type='LineString', coordinates=line.coords),

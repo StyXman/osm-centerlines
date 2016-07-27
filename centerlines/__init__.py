@@ -147,6 +147,33 @@ def line_ends (line):
     return ( line.coords[0], line.coords[-1] )
 
 
+def medials_ends (medials):
+    """Finds the points at the end of several lines, which
+    might have points in common. think of Ts, Vs or Ys.
+
+    The result is a list in medial order with a list of points (0, 1 or 2)."""
+    # NOTE: Vs could be a bitch
+
+    ends= [ [] for i in medials ]
+    added= {}
+    removed= set ()
+
+    for index, medial in enumerate (medials):
+        for coords in line_ends (medial):
+            if coords not in added and coords not in removed:
+                point= Point (*coords)
+                ends[index].append (point)
+                # save the index of the medial and the point for potential removal
+                added[coords]= (index, point)
+            elif coords in added:
+                # see comment above
+                i, point= added.pop (coords)  # this also removes the (k, v) pair
+                ends[i].remove (point)
+                removed.add (coords)
+
+    return ends
+
+
 # in fact I need something more specific
 def radial_points (way, skel, medial):
     """Finds the points on the radials that are on the way."""

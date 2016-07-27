@@ -127,14 +127,13 @@ class TestSynteticRadialPoints (TestCase):
                       ( (3, 4), (2, 5) ),
                       ( (3, 4), (4, 5) ))
         skel= MultiLineString (skel_points)
-        medials_points= (( (1, 1), (3, 1) ),
-                         ( (3, 1), (3, 4) ))
+        medials_points= (( (1, 1), (3, 1), (3, 4) ), )
         medials= MultiLineString (medials_points)
 
         radials= centerlines.radial_points (way, skel, medials)
 
-        expected= [ ([ Point (0, 0), Point (0, 2) ], [  ]),
-                    ([  ], [ Point (4, 5), Point (2, 5) ])]
+        expected= [ ([ Point (0, 0), Point (0, 2) ],
+                     [ Point (4, 5), Point (2, 5) ])]
         self.check_radials (radials, expected)
 
     def testTShape (self):

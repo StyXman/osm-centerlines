@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import geoalchemy2
 
 import shapely.wkb
+import shapely.ops
 from shapely.geometry import Point, LineString
 
 import fiona
@@ -91,7 +92,7 @@ def way_skel_medial (osm_id):
     return (
         decode (get (OSM_Polygons, osm_id).way),
         decode (get (PgSkel, osm_id).skel),
-        decode (get (PgMedial, osm_id).medial),
+        shapely.ops.linemerge (decode (get (PgMedial, osm_id).medial)),
         )
 
 # notice this:
@@ -138,23 +139,29 @@ def radials (skel, medial):
 # in fact I need something more specific
 def radial_points (way, skel, medial):
     """Finds the points on the radials that are on the way."""
-    start= Point (medial.geoms[0].coords[0])
-    end= Point (medial.geoms[0].coords[-1])
+    start= Point (medial.coords[0])
+    end= Point (medial.coords[-1])
     radial_points= [[], []]
+
+    def points_in_way (line, way):
+        points= [ Point (p) for p in line.coords ]
+        return [ p for p in points if p.touches (way) ]
 
     for line in skel.geoms:
         # ignore medial
-        if line.equals (medial.geoms[0]):
+        # NOTE: since medials are now LineString, this is no longer True
+        # except in the most simple case
+        if line.equals (medial):
             continue
 
         if line.touches (start):
-            points= [ Point (p) for p in line.coords ]
-            point= [ p for p in points if p.touches (way) ][0]  # I know there's only one
-            radial_points[0].append (point)
+            points= points_in_way (line, way)
+            if len (points)==1: # there might be none!
+                radial_points[0].append (points[0])
         elif line.touches (end):
-            points= [ Point (p) for p in line.coords ]
-            point= [ p for p in points if p.touches (way) ][0]  # I know there's only one
-            radial_points[1].append (point)
+            points= points_in_way (line, way)
+            if len (points)==1: # there might be none!
+                radial_points[1].append (points[0])
 
     return radial_points
 

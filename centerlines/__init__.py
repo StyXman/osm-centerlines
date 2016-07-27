@@ -90,12 +90,15 @@ def way_skel_medials (osm_id):
         # not the other way around.
         return shapely.wkb.loads (codecs.decode (str (way), 'hex'))
 
-    return (
-        decode (get (OSM_Polygons, osm_id).way),
-        decode (get (PgSkel, osm_id).skel),
-        # this might still return MultiLineString; f.i., in case of branches
-        shapely.ops.linemerge (decode (get (PgMedial, osm_id).medial)),
-        )
+    way= decode (get (OSM_Polygons, osm_id).way)
+    skel= decode (get (PgSkel, osm_id).skel)
+    medials= shapely.ops.linemerge (decode (get (PgMedial, osm_id).medial))
+    # this might still return MultiLineString; f.i., in case of branches
+    # if not, convert it to an iterable for the rest of the algos
+    if type (medials)==LineString:
+        medials= ( medials, )
+
+    return (way, skel, medials)
 
 # notice this:
 # * rb is a list of 5 points, the last is teh same as the first

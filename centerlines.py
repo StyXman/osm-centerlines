@@ -197,7 +197,7 @@ def write (file_name, line):
                        schema=dict (geometry='LineString', properties={}))
 
     # prepare the record
-    r= r= dict (geometry=dict (type='LineString', coordinates=l.coords),
+    r= r= dict (geometry=dict (type='LineString', coordinates=line.coords),
                 properties={})
     f.write (r)
     f.close ()

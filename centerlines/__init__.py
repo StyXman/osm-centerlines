@@ -100,27 +100,24 @@ def line_ends (line):
 
 
 def medials_ends (medials):
-    """Finds the points at the end of several lines, which
-    might have points in common. think of Ts, Vs or Ys.
-
-    The result is a list in medial order with a list of points (0, 1 or 2)."""
+    """Returns a list of (start, end) points in medial order. start or end
+    might be None if they happen to be a common point among the medials."""
     # NOTE: Vs could be a bitch
 
-    ends= [ [] for i in medials ]
+    ends= [ [None, None] for i in medials ]
     added= {}
     removed= set ()
 
-    for index, medial in enumerate (medials):
-        for coords in line_ends (medial):
+    for m_index, medial in enumerate (medials):
+        for end_index, coords in enumerate (line_ends (medial)):
             if coords not in added and coords not in removed:
-                point= Point (*coords)
-                ends[index].append (point)
+                ends[m_index][end_index]= Point (*coords)
                 # save the index of the medial and the point for potential removal
-                added[coords]= (index, point)
+                added[coords]= (m_index, end_index)
             elif coords in added:
                 # see comment above
-                i, point= added.pop (coords)  # this also removes the (k, v) pair
-                ends[i].remove (point)
+                i, j= added.pop (coords)  # this also removes the (k, v) pair
+                ends[i][j]= None
                 removed.add (coords)
 
     return ends

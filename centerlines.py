@@ -166,13 +166,6 @@ def radial_points (way, skel, medial):
 
     return radial_points
 
-# even more specific
-def flow_segments (way, skel, medial):
-    """Returns the flow-in and flow-out segments in way."""
-    points= radial_points (way, skel, medial)
-
-    return ( LineString (points[0]), LineString (points[1]) )
-
 # but not really, because the computations are done in Point()s anyways
 def middle_point (p1, p2):
     """Returns the point between p1 and p2"""

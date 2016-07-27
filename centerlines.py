@@ -78,7 +78,7 @@ class PgMedial (Base):
     way= sqla.Column (geoalchemy2.Geometry('POLYGON'))
     medial= sqla.Column (geoalchemy2.Geometry('POLYGON'))
 
-def way_skel_medial (osm_id):
+def way_skel_medials (osm_id):
     def get (table, osm_id):
         return s.query (table).filter (table.osm_id==osm_id).first ()
 
@@ -93,6 +93,7 @@ def way_skel_medial (osm_id):
     return (
         decode (get (OSM_Polygons, osm_id).way),
         decode (get (PgSkel, osm_id).skel),
+        # this might still return MultiLineString; f.i., in case of branches
         shapely.ops.linemerge (decode (get (PgMedial, osm_id).medial)),
         )
 

@@ -108,6 +108,29 @@ class TestSynteticRadialPoints (TestCase):
                      [ Point (4, 0), Point (4, 2) ]) ]  # end
         self.check_radials (radials, expected)
 
+    def testLShape (self):
+        way= Polygon (( (0, 0), (4, 0),
+                        (4, 5), (2, 5),
+                        (2, 2), (0, 2), (0, 0) ))
+        skel_points= (( (0, 0), (1, 1) ),
+                      ( (1, 1), (0, 2) ),
+                      ( (1, 1), (3, 1) ),
+                      ( (3, 1), (4, 0) ),
+                      ( (3, 1), (2, 2) ),
+                      ( (3, 1), (3, 4) ),
+                      ( (3, 4), (2, 5) ),
+                      ( (3, 4), (4, 5) ))
+        skel= MultiLineString (skel_points)
+        medials_points= (( (1, 1), (3, 1) ),
+                         ( (3, 1), (3, 4) ))
+        medials= MultiLineString (medials_points)
+
+        radials= centerlines.radial_points (way, skel, medials)
+
+        expected= [ ([ Point (0, 0), Point (0, 2) ], [  ]),
+                    ([  ], [ Point (4, 5), Point (2, 5) ])]
+        self.check_radials (radials, expected)
+
     def testTShape (self):
         way= Polygon (( (0, 0), (6, 0), (6, 2),
                         (4, 2), (4, 5), (2, 5),

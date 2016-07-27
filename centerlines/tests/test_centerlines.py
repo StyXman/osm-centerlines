@@ -72,6 +72,12 @@ class TestPointsInWay (TestCase):
 
         self.assertEqual (centerlines.points_in_way (line, way), [])
 
+    def testOne (self):
+        way= Polygon (( (0, 0), (4, 0), (4, 2), (0, 2), (0, 0) ))
+        line= LineString (( (1, 1), (4, 0) ))
+
+        self.assertEqual (centerlines.points_in_way (line, way),
+                          [Point (4, 0)])
 
 
 class TestSynteticRadialPoints (TestCase):

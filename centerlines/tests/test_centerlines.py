@@ -41,7 +41,9 @@ class TestMedialsEnds (TestCase):
 
         ends= centerlines.medials_ends (medials)
 
-        self.assertEqual (ends, [ [Point (0, 0)], [Point (2, 1)], [Point (0, 1)] ])
+        self.assertEqual (ends, [ [Point (0, 0), None],
+                                  [None, Point (2, 1)],
+                                  [None, Point (0, 1)] ])
 
     def testQuintuple (self):
         # a Y with a Y for arm
@@ -54,7 +56,11 @@ class TestMedialsEnds (TestCase):
 
         ends= centerlines.medials_ends (medials)
 
-        self.assertEqual (ends, [ [Point (-1, 0)], [], [Point (2, 1)], [Point (0, 1)] ])
+        self.assertEqual (ends, [ [Point (-1, 0), None],
+                                  [None, Point (0, 1)],
+                                  [None, None],
+                                  [None, Point (2, 1)],
+                                  [None, Point (1, 2)] ])
 
 
 class TestPointsInWay (TestCase):

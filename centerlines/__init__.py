@@ -17,34 +17,6 @@ import codecs
 import errno
 from collections import OrderedDict
 
-# the following list of riverbanks has some, but not all the usecase tests
-# we want to solve, but I will be expanding as I find new examples
-# and osm_ids are changed
-examples = (
-    # L'Eygoutier section close to the Tennis Club du Littoral, Toulon
-    147639843,  # section with centerline, flow-in and through 224939728, flow out 27335952
-                # has branch
-    147639869,  # section without centerline, no flow-in or flow-out lines
-    147639871,  # section without centerline, flow-in 271441410
-    147639931,  # section without centerline, flow-in close to 27046147
-    147639837,  # calculated centerline coincides with flow-in point, but
-                # centerline is 27554300 and flow-in is 27351558,
-                # touches the first, but not the latter, they share endpoint
-    147639884,  # has flow-in, centerline, flow-out 27554300, several branches
-                # one is a tributary 31104263
-    147639857,  # calculated centerline does not reach node at flow-in
-                # real flow-in, centerline is 27554300, flow-out is 30839685
-    147639874,  # 30847660 is flow-in, centerline, close to be flow-out but quite
-                # no real flow-out
-                # can we really do anything about it?
-    147639890,  # simplest case, isolated rectangle, medial a straight segment,
-                # skel includes the parted X   >----<
-    147639834,  # slightly more complex, several segments, but still basically
-                # >----<
-    147639896,  # slightly more complex, flow-in close to medial, flow-out
-                # deviates, complex
-    )
-
 # too much boilerplate!
 e= sqla.create_engine ('postgresql:///gis')
 S= orm.sessionmaker (bind=e)
@@ -99,26 +71,6 @@ def way_skel_medials (osm_id):
         medials= ( medials, )
 
     return (way, skel, medials)
-
-# notice this:
-# * rb is a list of 5 points, the last is teh same as the first
-# * the only line in medial is the last line in skel
-
-# nice:
-# In [47]: l1= shapely.geometry.LineString ([(0, 0), (1, 1)])
-# In [48]: l2= shapely.geometry.LineString ([(1, 1), (0, 0)])
-# In [49]: l1.equals (l2)
-# Out[49]: True
-
-# and:
-# In [62]: l1.touches (l1)
-# Out[62]: False
-
-# but:
-# In [66]: l1.touches (shapely.geometry.Point (l1.coords[0]))
-# Out[66]: True
-# In [67]: l1.touches (shapely.geometry.Point (l1.coords[-1]))
-# Out[67]: True
 
 
 def medial_in_skel (skel, medial):

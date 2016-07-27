@@ -138,6 +138,12 @@ def radials (skel, medial):
 
     return radials
 
+
+def line_ends (line):
+    """Returns the coords (not Points) of the ends of a LineString."""
+    return ( line.coords[0], line.coords[-1] )
+
+
 # in fact I need something more specific
 def radial_points (way, skel, medial):
     """Finds the points on the radials that are on the way."""

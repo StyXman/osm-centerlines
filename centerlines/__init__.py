@@ -177,6 +177,8 @@ def write (file_name, line):
     """Writes the LineString to the given filename, appending if the file already
     exists, or creating a new file if not."""
     crs= fiona.crs.from_epsg (900913)
+    # I don't know where this 11 comes from, or why it's converted to 0
+    # when the records are written
     properties= OrderedDict ([ ('FID', 'int:11') ])
     schema= dict (geometry='LineString', properties=properties)
     driver= 'ESRI Shapefile'

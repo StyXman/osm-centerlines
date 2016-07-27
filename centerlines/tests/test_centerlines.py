@@ -4,6 +4,11 @@ import centerlines
 
 from shapely.geometry import LineString, MultiLineString, Point, Polygon
 
+# conventions:
+# a line is a n-tuple of 2-tuples (points)
+# put spaces inside the parenthesis defining the line
+# a multi line is a *list* of lines
+
 class TestLineEnds (TestCase):
 
     def testSimple (self):
@@ -34,10 +39,10 @@ class TestMedialsEnds (TestCase):
         self.assertEqual (ends, [ [Point (p) for p in points] ])
 
     def testTriple (self):
-        # T, Y case
-        points= (( (0, 0), (1, 1) ),
+        # T, Y cases
+        points= [( (0, 0), (1, 1) ),
                  ( (1, 1), (2, 1) ),
-                 ( (1, 1), (0, 1) ))
+                 ( (1, 1), (0, 1) )]
         medials= MultiLineString (points)
 
         ends= centerlines.medials_ends (medials)
@@ -80,6 +85,49 @@ class TestPointsInWay (TestCase):
                           [Point (4, 0)])
 
 
+# syntetic data
+# simple rectangle with >--< skel and -- medial
+# yes, this is the simple example :)
+rectangle= Polygon (( (0, 0), (4, 0), (4, 2), (0, 2), (0, 0) ))
+rect_skel= MultiLineString ( [( (0, 0), (1, 1) ),
+                              ( (1, 1), (0, 2) ),
+                              # this is the central bar from which the radials radiate :)
+                              ( (1, 1), (3, 1) ),
+                              ( (3, 1), (4, 2) ),
+                              ( (4, 0), (3, 1) )] )
+rect_medials= MultiLineString ( [( (1, 1), (3, 1) )] )
+
+l_shape= Polygon (( (0, 0), (4, 0),
+                    (4, 5), (2, 5),
+                    (2, 2), (0, 2), (0, 0) ))
+l_skel= MultiLineString ( [( (0, 0), (1, 1) ),
+                           ( (1, 1), (0, 2) ),
+                           ( (1, 1), (3, 1) ),
+                           ( (3, 1), (4, 0) ),
+                           ( (3, 1), (2, 2) ),
+                           ( (3, 1), (3, 4) ),
+                           ( (3, 4), (2, 5) ),
+                           ( (3, 4), (4, 5) )] )
+l_medials= MultiLineString ([ ( (1, 1), (3, 1), (3, 4) )] )
+
+t_shape= Polygon (( (0, 0), (6, 0), (6, 2),
+                    (4, 2), (4, 5), (2, 5),
+                    (2, 2), (0, 2), (0, 0) ))
+t_skel= MultiLineString ( [( (0, 0), (1, 1) ),
+                           ( (1, 1), (0, 2) ),
+                           ( (1, 1), (3, 1) ),
+                           ( (3, 1), (5, 1) ),
+                           ( (5, 1), (6, 2) ),
+                           ( (6, 0), (5, 1) ),
+                           ( (3, 1), (2, 2) ),
+                           ( (3, 1), (4, 2) ),
+                           ( (3, 1), (3, 4) ),
+                           ( (3, 4), (2, 5) ),
+                           ( (3, 4), (4, 5) )] )
+t_medials= MultiLineString ( [( (1, 1), (3, 1) ),
+                              ( (3, 1), (3, 4) ),
+                              ( (3, 1), (5, 1) )] )
+
 class TestSynteticRadialPoints (TestCase):
     # it doesn't use real skeletons or medials
 
@@ -94,20 +142,8 @@ class TestSynteticRadialPoints (TestCase):
 
 
     def testSimple (self):
-        # simple rectangle with >--< skel and -- medial
-        # yes, this is the simple example :)
-        way= Polygon (( (0, 0), (4, 0), (4, 2), (0, 2), (0, 0) ))
-        skel_points= (( (0, 0), (1, 1) ),
-                      ( (1, 1), (0, 2) ),
-                      # this is the central bar from which the radials radiate :)
-                      ( (1, 1), (3, 1) ),
-                      ( (3, 1), (4, 2) ),
-                      ( (4, 0), (3, 1) ))
-        skel= MultiLineString (skel_points)
-        medials_points= (( (1, 1), (3, 1) ), )
-        medials= MultiLineString (medials_points)
 
-        radials= centerlines.radial_points (way, skel, medials)
+        radials= centerlines.radial_points (rectangle, rect_skel, rect_medials)
 
         # notice they are the 4 points from way, but partitioned by medial ends
         expected= [ ([ Point (0, 0), Point (0, 2) ],    # start
@@ -115,49 +151,16 @@ class TestSynteticRadialPoints (TestCase):
         self.check_radials (radials, expected)
 
     def testLShape (self):
-        way= Polygon (( (0, 0), (4, 0),
-                        (4, 5), (2, 5),
-                        (2, 2), (0, 2), (0, 0) ))
-        skel_points= (( (0, 0), (1, 1) ),
-                      ( (1, 1), (0, 2) ),
-                      ( (1, 1), (3, 1) ),
-                      ( (3, 1), (4, 0) ),
-                      ( (3, 1), (2, 2) ),
-                      ( (3, 1), (3, 4) ),
-                      ( (3, 4), (2, 5) ),
-                      ( (3, 4), (4, 5) ))
-        skel= MultiLineString (skel_points)
-        medials_points= (( (1, 1), (3, 1), (3, 4) ), )
-        medials= MultiLineString (medials_points)
 
-        radials= centerlines.radial_points (way, skel, medials)
+        radials= centerlines.radial_points (l_shape, l_skel, l_medials)
 
         expected= [ ([ Point (0, 0), Point (0, 2) ],
                      [ Point (4, 5), Point (2, 5) ])]
         self.check_radials (radials, expected)
 
     def testTShape (self):
-        way= Polygon (( (0, 0), (6, 0), (6, 2),
-                        (4, 2), (4, 5), (2, 5),
-                        (2, 2), (0, 2), (0, 0) ))
-        skel_points= (( (0, 0), (1, 1) ),
-                      ( (1, 1), (0, 2) ),
-                      ( (1, 1), (3, 1) ),
-                      ( (3, 1), (5, 1) ),
-                      ( (5, 1), (6, 2) ),
-                      ( (6, 0), (5, 1) ),
-                      ( (3, 1), (2, 2) ),
-                      ( (3, 1), (4, 2) ),
-                      ( (3, 1), (3, 4) ),
-                      ( (3, 4), (2, 5) ),
-                      ( (3, 4), (4, 5) ))
-        skel= MultiLineString (skel_points)
-        medials_points= (( (1, 1), (3, 1) ),
-                         ( (3, 1), (3, 4) ),
-                         ( (3, 1), (5, 1) ))
-        medials= MultiLineString (medials_points)
 
-        radials= centerlines.radial_points (way, skel, medials)
+        radials= centerlines.radial_points (t_shape, t_skel, t_medials)
 
         expected= [ ([ Point (0, 0), Point (0, 2) ], [  ]),
                     ([  ], [ Point (4, 5), Point (2, 5) ]),

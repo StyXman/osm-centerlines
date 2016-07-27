@@ -88,7 +88,6 @@ class PgMedial (Base):
 # duration: negligible :)
 # foo= s.query (PgMedial).filter (PgMedial.osm_id==147639896).first()
 
-# this is strange, I would expect codecs.decode() to accept bytes() only
 # Out[38]: 'POLYGON ((661994.3 5329434.18,
 #                     661995.1899999999 5329436.47,
 #                     662006.21 5329433.42,
@@ -109,6 +108,7 @@ def way_skel_medial (osm_id):
         return s.query (table).filter (table.osm_id==osm_id).first ()
 
     def decode (way):
+        # this is strange, I would expect codecs.decode() to accept bytes() only
         return shapely.wkb.loads (codecs.decode (str (way), 'hex'))
 
     return (

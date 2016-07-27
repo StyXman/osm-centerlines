@@ -32,16 +32,24 @@ class TestMedialsEnds (TestCase):
 
         self.assertEqual (ends, [ [Point (p) for p in points] ])
 
-    def testDouble (self):
-        points= (( (0, 0), (1, 1) ), ( (1, 1), (2, 1) ), ( (1, 1), (0, 1) ))
+    def testTriple (self):
+        # T, Y case
+        points= (( (0, 0), (1, 1) ),
+                 ( (1, 1), (2, 1) ),
+                 ( (1, 1), (0, 1) ))
         medials= MultiLineString (points)
 
         ends= centerlines.medials_ends (medials)
 
         self.assertEqual (ends, [ [Point (0, 0)], [Point (2, 1)], [Point (0, 1)] ])
 
-    def testTriple (self):
-        points= (( (-1, 0), (0, 0) ), ( (0, 0), (1, 1) ), ( (1, 1), (2, 1) ), ( (1, 1), (0, 1) ))
+    def testQuintuple (self):
+        # a Y with a Y for arm
+        points= (( (-1, 0), (0, 0) ),
+                 (  (0, 0), (0, 1) ),
+                 (  (0, 0), (1, 1) ),
+                 (  (1, 1), (2, 1) ),
+                 (  (1, 1), (1, 2) ))
         medials= MultiLineString (points)
 
         ends= centerlines.medials_ends (medials)

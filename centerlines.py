@@ -109,6 +109,10 @@ def way_skel_medial (osm_id):
 
     def decode (way):
         # this is strange, I would expect codecs.decode() to accept bytes() only
+        # but so it happens that codecs can en/decode to/from bytes or str at will
+        # in particular, 'hex' encodes to str and decodes to bytes
+        # which makes sense (the str is the representation of the bytes,
+        # not the other way around.
         return shapely.wkb.loads (codecs.decode (str (way), 'hex'))
 
     return (

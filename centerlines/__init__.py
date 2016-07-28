@@ -6,28 +6,6 @@ import fiona.crs
 from collections import OrderedDict
 
 
-def medial_in_skel (skel, medial):
-    """Finds the index of the LineString in skel that's the medial."""
-    for index, line in enumerate (skel.geoms):
-        if line.equals (medial.geoms[0]):
-            return index
-
-
-def radials (skel, medial):
-    """Finds the LineStrings in skel that radiate from the ends of the medial."""
-    start= Point (medial.geoms[0].coords[0])
-    end= Point (medial.geoms[0].coords[-1])
-    radials= [ [], [] ]
-
-    for line in list (skel.geoms):
-        if line.touches (start):
-            radials[0].append (line)
-        elif line.touches (end):
-            radials[1].append (line)
-
-    return radials
-
-
 def line_ends (line):
     """Returns the coords (not Points) of the ends of a LineString."""
     return ( line.coords[0], line.coords[-1] )

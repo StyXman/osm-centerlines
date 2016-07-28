@@ -101,8 +101,9 @@ def way_skel_medials (osm_id):
 
     return (way, skel, medials)
 
-w, s, m= way_skel_medials (int (sys.argv[1]))
+if __name__=='__main__':
+    w, s, m= way_skel_medials (int (sys.argv[1]))
 
-print (str (w))
-print (str (s))
-print (str (m))
+    print (str (w))
+    print (str (s))
+    print (str (m))

@@ -1,0 +1,5 @@
+# these are the versions with which this module was developed.
+# if you find that it works with lower versions, don't hesitate to let me know
+shapely>=1.5.16
+fiona>=1.7.0
+psycopg2>=2.6.2

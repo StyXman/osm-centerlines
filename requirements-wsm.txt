@@ -1,0 +1,4 @@
+# these are the versions with which this module was developed.
+# if you find that it works with lower versions, don't hesitate to let me know
+sqlalchemy>=1.0.13
+geoalchemy>=0.3.0

@@ -1,76 +1,9 @@
-# /usr/bin/python3
-
-import sqlalchemy as sqla
-from sqlalchemy import orm
-from sqlalchemy.ext.declarative import declarative_base
-
-import geoalchemy2
-
-import shapely.wkb
-import shapely.ops
 from shapely.geometry import Point, LineString, MultiLineString
 
 import fiona
 import fiona.crs
 
-import codecs
-import errno
 from collections import OrderedDict
-
-# too much boilerplate!
-e= sqla.create_engine ('postgresql:///gis')
-S= orm.sessionmaker (bind=e)
-s= S()
-m= sqla.MetaData (e)
-Base= declarative_base(metadata=m)
-
-class OSM_Polygons (Base):
-    __tablename__= 'planet_osm_polygon'
-    __table_args__= { 'autoload': True }
-    osm_id= sqla.Column (sqla.Integer, primary_key=True)
-    way= sqla.Column (geoalchemy2.Geometry('POLYGON'))
-
-class OSM_Lines (Base):
-    __tablename__= 'planet_osm_line'
-    __table_args__= { 'autoload': True }
-    osm_id= sqla.Column (sqla.Integer, primary_key=True)
-    way= sqla.Column (geoalchemy2.Geometry('POLYGON'))
-
-class PgSkel (Base):
-    __tablename__= 'planet_osm_riverbank_skel'
-    __table_args__= { 'autoload': True }
-    osm_id= sqla.Column (sqla.Integer, primary_key=True)
-    way= sqla.Column (geoalchemy2.Geometry('POLYGON'))
-    skel= sqla.Column (geoalchemy2.Geometry('POLYGON'))
-
-class PgMedial (Base):
-    __tablename__= 'planet_osm_riverbank_medial'
-    __table_args__= { 'autoload': True }
-    osm_id= sqla.Column (sqla.Integer, primary_key=True)
-    way= sqla.Column (geoalchemy2.Geometry('POLYGON'))
-    medial= sqla.Column (geoalchemy2.Geometry('POLYGON'))
-
-def way_skel_medials (osm_id):
-    def get (table, osm_id):
-        return s.query (table).filter (table.osm_id==osm_id).first ()
-
-    def decode (way):
-        # this is strange, I would expect codecs.decode() to accept bytes() only
-        # but so it happens that codecs can en/decode to/from bytes or str at will
-        # in particular, 'hex' encodes to str and decodes to bytes
-        # which makes sense (the str is the representation of the bytes,
-        # not the other way around.
-        return shapely.wkb.loads (codecs.decode (str (way), 'hex'))
-
-    way= decode (get (OSM_Polygons, osm_id).way)
-    skel= decode (get (PgSkel, osm_id).skel)
-    medials= shapely.ops.linemerge (decode (get (PgMedial, osm_id).medial))
-    # this might still return MultiLineString; f.i., in case of branches
-    # if not, convert it to an iterable for the rest of the algos
-    if type (medials)==LineString:
-        medials= ( medials, )
-
-    return (way, skel, medials)
 
 
 def medial_in_skel (skel, medial):

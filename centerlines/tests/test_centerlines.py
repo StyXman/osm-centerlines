@@ -131,12 +131,19 @@ t_medials= MultiLineString ( [( (1, 1), (3, 1) ),
 class TestSynteticRadialPoints (TestCase):
     # it doesn't use real skeletons or medials
 
-    def check_radials (self, radials, expected):
+    def check_radials (self, count, radials, expected):
+        self.assertEqual (len (radials), count)
+
         for m_index, medial in enumerate (radials):
+            self.assertEqual (len (medial), 2)  # one for start, one for end
+
             for end_index, end in enumerate (medial):
+                b= expected[m_index][end_index]
+
+                self.assertEqual (len (end), len (b))
+
                 for p_index, point in enumerate (end):
                     a=  radials[m_index][end_index][p_index]
-                    b= expected[m_index][end_index]
                     # points can be in any order, so test belongness (???) only
                     self.assertIn (a, b)
 
@@ -148,7 +155,7 @@ class TestSynteticRadialPoints (TestCase):
         # notice they are the 4 points from way, but partitioned by medial ends
         expected= [ ([ Point (0, 0), Point (0, 2) ],    # start
                      [ Point (4, 0), Point (4, 2) ]) ]  # end
-        self.check_radials (radials, expected)
+        self.check_radials (1, radials, expected)
 
     def testLShape (self):
 
@@ -156,7 +163,7 @@ class TestSynteticRadialPoints (TestCase):
 
         expected= [ ([ Point (0, 0), Point (0, 2) ],
                      [ Point (4, 5), Point (2, 5) ])]
-        self.check_radials (radials, expected)
+        self.check_radials (1, radials, expected)
 
     def testTShape (self):
 
@@ -165,7 +172,7 @@ class TestSynteticRadialPoints (TestCase):
         expected= [ ([ Point (0, 0), Point (0, 2) ], [  ]),
                     ([  ], [ Point (4, 5), Point (2, 5) ]),
                     ([  ], [ Point (6, 2), Point (6, 0) ])]
-        self.check_radials (radials, expected)
+        self.check_radials (3, radials, expected)
 
 
 class TestMiddlePoint (TestCase):

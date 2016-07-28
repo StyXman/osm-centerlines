@@ -8,7 +8,7 @@ import geoalchemy2
 
 import shapely.wkb
 import shapely.ops
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, LineString, MultiLineString
 
 import fiona
 import fiona.crs
@@ -162,16 +162,35 @@ def middle_point (p1, p2):
 
 
 # finally we get somewhere
-def extend_medial (way, skel, medial):
+def extend_medials (way, skel, medials):
     """Extends medial with segments that go from the middle point of the
     way's flow segments to the ends of the medial."""
-    ((p1, p2), (p3, p4))= radial_points (way, skel, medial)
+    points_per_medial_per_end= radial_points (way, skel, medials)
 
-    # now, p1, p2 are related to start
-    # and p3, p4 to end
-    # so it should be
-    # [ middle_point (p1, p2), start, ..., end, middle_point (p3, p4) ]
-    return LineString ([ middle_point (p1, p2), *medial.coords, middle_point (p3, p4) ])
+    new_medials= []
+
+    for m_index, (start_points, end_points) in enumerate (points_per_medial_per_end):
+        new_start_point= None
+        new_end_point= None
+        # TODO: support more points!
+        if len (start_points)==2:
+            new_start_point= middle_point (*start_points)
+        if len (end_points)==2:
+            new_end_point=   middle_point (*end_points)
+
+        if new_start_point and new_end_point:
+            # extend both ends
+            new_medials.append ((new_start_point, *medials[m_index].coords, new_end_point))
+        elif new_start_point and not new_end_point:
+            # you see the picture...
+            new_medials.append ((new_start_point, *medials[m_index].coords))
+        elif not new_start_point and new_end_point:
+            new_medials.append ((*medials[m_index].coords, new_end_point))
+        else:
+            # it's an internal medial, copy as-is
+            new_medials.append (medials[m_index].coords)
+
+    return MultiLineString (new_medials)
 
 
 def write (file_name, line):

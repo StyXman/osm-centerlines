@@ -180,3 +180,29 @@ class TestMiddlePoint (TestCase):
     def testSimple (self):
         self.assertEqual (centerlines.middle_point ((0, 0), (2, 2)),
                           (1, 1))
+
+
+class TestSynteticExtendMedials (TestCase):
+
+    def testRectangle (self):
+
+        medials= centerlines.extend_medials (rectangle, rect_skel, rect_medials)
+
+        expected= MultiLineString ( [( (0, 1), (1, 1), (3, 1), (4, 1) )] )
+        self.assertEqual (medials, expected)
+
+    def testLShape (self):
+
+        medials= centerlines.extend_medials (l_shape, l_skel, l_medials)
+
+        expected= MultiLineString ( [( (0, 1), (1, 1), (3, 1), (3, 4), (3, 5) )] )
+        self.assertEqual (medials, expected)
+
+    def testTShape (self):
+
+        medials= centerlines.extend_medials (t_shape, t_skel, t_medials)
+
+        expected= MultiLineString ( [( (0, 1), (1, 1), (3, 1) ),
+                                     ( (3, 1), (3, 4), (3, 5) ),
+                                     ( (3, 1), (5, 1), (6, 1) )] )
+        self.assertEqual (medials, expected)

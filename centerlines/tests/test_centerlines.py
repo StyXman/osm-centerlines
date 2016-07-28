@@ -82,7 +82,7 @@ class TestPointsInWay (TestCase):
         line= LineString (( (1, 1), (4, 0) ))
 
         self.assertEqual (centerlines.points_in_way (line, way),
-                          [Point (4, 0)])
+                          [(4, 0)])
 
 
 # syntetic data
@@ -153,30 +153,30 @@ class TestSynteticRadialPoints (TestCase):
         radials= centerlines.radial_points (rectangle, rect_skel, rect_medials)
 
         # notice they are the 4 points from way, but partitioned by medial ends
-        expected= [ ([ Point (0, 0), Point (0, 2) ],    # start
-                     [ Point (4, 0), Point (4, 2) ]) ]  # end
+        expected= [ ([ (0, 0), (0, 2) ],    # start
+                     [ (4, 0), (4, 2) ]) ]  # end
         self.check_radials (1, radials, expected)
 
     def testLShape (self):
 
         radials= centerlines.radial_points (l_shape, l_skel, l_medials)
 
-        expected= [ ([ Point (0, 0), Point (0, 2) ],
-                     [ Point (4, 5), Point (2, 5) ])]
+        expected= [ ([ (0, 0), (0, 2) ],
+                     [ (4, 5), (2, 5) ])]
         self.check_radials (1, radials, expected)
 
     def testTShape (self):
 
         radials= centerlines.radial_points (t_shape, t_skel, t_medials)
 
-        expected= [ ([ Point (0, 0), Point (0, 2) ], [  ]),
-                    ([  ], [ Point (4, 5), Point (2, 5) ]),
-                    ([  ], [ Point (6, 2), Point (6, 0) ])]
+        expected= [ ([ (0, 0), (0, 2) ], [  ]),
+                    ([  ], [ (4, 5), (2, 5) ]),
+                    ([  ], [ (6, 2), (6, 0) ])]
         self.check_radials (3, radials, expected)
 
 
 class TestMiddlePoint (TestCase):
 
     def testSimple (self):
-        self.assertEqual (centerlines.middle_point (Point (0, 0), Point (2, 2)),
-                          Point (1, 1))
+        self.assertEqual (centerlines.middle_point ((0, 0), (2, 2)),
+                          (1, 1))

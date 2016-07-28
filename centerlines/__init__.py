@@ -126,8 +126,7 @@ def medials_ends (medials):
 
 def points_in_way (line, way):
     """Returns the points in line that are in way too."""
-    points= [ Point (p) for p in line.coords ]
-    return [ p for p in points if p.touches (way) ]
+    return [ p for p in line.coords if Point (p).touches (way) ]
 
 
 def radial_points (way, skel, medials):
@@ -157,8 +156,9 @@ def radial_points (way, skel, medials):
 # but not really, because the computations are done in Point()s anyways
 def middle_point (p1, p2):
     """Returns the point between p1 and p2"""
-    # Point does not have + or / defined!
-    return Point (*[ (p1.coords[0][i]+p2.coords[0][i])/2 for i in (0, 1) ])
+    # TODO: support more points!
+    return ((p1[0]+p2[0])/2,
+            (p1[1]+p2[1])/2)
 
 
 # finally we get somewhere

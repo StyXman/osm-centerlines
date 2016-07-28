@@ -1,5 +1,6 @@
 from shapely.geometry import Point, LineString, MultiLineString
 from shapely import wkb
+import shapely.ops
 
 import fiona
 import fiona.crs
@@ -111,6 +112,28 @@ def decode (way):
     """convert a str() with a wkb (what usually comes out of postgis)
     into a shapely.geometry."""
     return wkb.loads (codecs.decode (str (way), 'hex'))
+
+
+def skeleton_medial_from_postgis (connection, way):
+    """Returns the skeleton for way as calculated by PostGIS.
+    connection must be a psycopg2 connection and way must be a shapey.geometry."""
+    way= wkb.dumps (way)
+
+    cursor= connection.cursor ()
+    cursor.execute ("SELECT ST_StraightSkeleton(%s), ST_ApproximateMedialAxis(%s);",
+                    (way, way))
+    skel, medials= [ decode (i) for i in (cursor.fetchone ()) ]
+
+    cursor.close ()
+
+    # medial comes as a series of segments, convert to lines as much as possible
+    medials= shapely.ops.linemerge (medials)
+    # linemerge() returns a single LineString if it can, but the rest of the algos
+    # work with MultiLineString
+    if type (medials)==LineString:
+        medials= MultiLineString ([ medials ])
+
+    return skel, medials
 
 
 def write (file_name, line):

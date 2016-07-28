@@ -1,9 +1,11 @@
 from shapely.geometry import Point, LineString, MultiLineString
+from shapely import wkb
 
 import fiona
 import fiona.crs
 
 from collections import OrderedDict
+import codecs
 
 
 def line_ends (line):
@@ -102,6 +104,13 @@ def extend_medials (way, skel, medials):
             new_medials.append (medials[m_index].coords)
 
     return MultiLineString (new_medials)
+
+
+# helper functions
+def decode (way):
+    """convert a str() with a wkb (what usually comes out of postgis)
+    into a shapely.geometry."""
+    return wkb.loads (codecs.decode (str (way), 'hex'))
 
 
 def write (file_name, line):

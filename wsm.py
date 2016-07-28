@@ -10,8 +10,9 @@ import shapely.wkb
 import shapely.ops
 from shapely.geometry import LineString, MultiLineString
 
+from centerlines import decode
+
 import sys
-import codecs
 
 
 # the following list of riverbanks has some, but not all the usecase tests
@@ -82,14 +83,6 @@ class PgMedial (Base):
 def way_skel_medials (osm_id):
     def get (table, osm_id):
         return s.query (table).filter (table.osm_id==osm_id).first ()
-
-    def decode (way):
-        # this is strange, I would expect codecs.decode() to accept bytes() only
-        # but so it happens that codecs can en/decode to/from bytes or str at will
-        # in particular, 'hex' encodes to str and decodes to bytes
-        # which makes sense (the str is the representation of the bytes,
-        # not the other way around.
-        return shapely.wkb.loads (codecs.decode (str (way), 'hex'))
 
     way= decode (get (OSM_Polygons, osm_id).way)
     skel= decode (get (PgSkel, osm_id).skel)

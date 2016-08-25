@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+** Call "ant help" to get possible build targets.
+-->
+<project name="Centerlines" default="dist" basedir=".">
+
+    <!-- enter the SVN commit message -->
+    <property name="commit.message" value="Commit message"/>
+    <!-- enter the *lowest* JOSM version this plugin is currently compatible with -->
+    <property name="plugin.main.version" value="10580"/>
+
+    <!-- Configure these properties (replace "..." accordingly).
+         See https://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
+    -->
+    <property name="plugin.author" value="Marcos Dione"/>
+    <property name="plugin.class" value="..."/>
+    <property name="plugin.description" value="Generates centerlines from riverbanks."/>
+    <property name="plugin.icon" value="..."/>
+    <property name="plugin.link" value="https://github.com/StyXman/osm-centerlines/"/>
+    <!--<property name="plugin.early" value="..."/>-->
+    <!--<property name="plugin.requires" value="..."/>-->
+    <!--<property name="plugin.stage" value="..."/>-->
+
+    <!-- ** include targets that all plugins have in common ** -->
+    <import file="/home/mdione/src/system/osm/josm/plugins/build-common.xml"/>
+</project>

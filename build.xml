@@ -22,5 +22,5 @@
     <!--<property name="plugin.stage" value="..."/>-->
 
     <!-- ** include targets that all plugins have in common ** -->
-    <import file="/home/mdione/src/system/osm/josm/plugins/build-common.xml"/>
+    <import file="../build-common.xml"/>
 </project>

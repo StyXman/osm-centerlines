@@ -8,6 +8,13 @@ import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.Main;
 
 import org.openstreetmap.josm.plugins.centerlines.CenterlinesAction;
+import org.openstreetmap.josm.plugins.centerlines.SelectionManager;
+
+import java.util.Collection;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
+
+import org.openstreetmap.josm.data.osm.Way;
+
 
 public class CenterlinesPlugin extends Plugin {
     private static JosmAction menuEntry;
@@ -25,6 +32,25 @@ public class CenterlinesPlugin extends Plugin {
     }
 
     public void execute() {
-        System.out.println("BAM!");
+        // a lot of code taken from other plugins, like:
+        // MichiganLeft
+        Collection<OsmPrimitive> mainSelection = Main.getLayerManager().getEditDataSet().getSelected();
+
+        for (OsmPrimitive prim : mainSelection) {
+            if (this.isClosedWay (prim)) {
+                System.out.println("BAM!");
+            }
+        }
+    }
+
+    private boolean isClosedWay(OsmPrimitive prim) {
+        if (prim instanceof Way) {
+            Way way = (Way) prim; // casting :)
+
+            int last = way.getNodes().size() - 1;
+            return ( way.getNode(0) == way.getNode(last) );
+        }
+
+        return false;
     }
 }

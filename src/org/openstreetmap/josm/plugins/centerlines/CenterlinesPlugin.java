@@ -30,6 +30,14 @@ import org.openstreetmap.josm.data.coor.EastNorth;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import javax.json.JsonObject;
+import javax.json.JsonArray;
+import javax.json.JsonReader;
+import java.io.StringReader;
+import javax.json.JsonValue;
+import org.openstreetmap.josm.data.coor.LatLon;
+import javax.json.JsonNumber;
+
 
 // a lot of code taken from other plugins and core code, like:
 // MichiganLeft
@@ -54,6 +62,7 @@ public class CenterlinesPlugin extends Plugin {
         this.projection = ProjectionPreference.wgs84.getProjection();
     }
 
+
     public void execute() {
         DataSet dataSet = Main.getLayerManager().getEditDataSet();
         Collection<OsmPrimitive> mainSelection = dataSet.getSelected();
@@ -65,43 +74,28 @@ public class CenterlinesPlugin extends Plugin {
                 Way way = (Way) prim; // casting :)
 
                 if (way.isClosed()) {
-                    /*
-                    // simulate some work by creating a new Way that goes from way[0] to way[2]
-                    if (way.getNodes().size()>2) {
-                        System.out.println("BAM!");
-
-                        Way new_way = new Way();
-                        new_way.addNode(way.getNode(0));
-                        new_way.addNode(way.getNode(2));
-
-                        dataSet.addPrimitive(new_way);
-                    }
-                    */
                     valid_ways.add(way);
                 }
             }
         }
 
         System.out.println(this.wayToJSON(valid_ways));
+
+        String json = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiLineString\",\"coordinates\":[[[5.44170300000,43.21320700000],[5.44170200000,43.21311500000]]]}}]}";
+        ArrayList<Way> centerlines = this.JSONtoWays(json);
+        System.out.println(this.wayToJSON(centerlines));
+
+        for (Way centerline : centerlines) {
+            for (Node node : centerline.getNodes()) {
+                // TODO: check existence
+                dataSet.addPrimitive(node);
+            }
+            dataSet.addPrimitive(centerline);
+        }
     }
 
-    private String wayToJSON(ArrayList<Way> ways) {
-        /*
-{
-    "type": "FeatureCollection",
-    "features": [ {
-        "type": "Feature",
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-                [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0],
-                [100.0, 0.0] ]
-             ]
-        }
-    } ]
-}
-        */
 
+    private String wayToJSON(ArrayList<Way> ways) {
         // this API is *so* *fucking* *useless*
         StringWriter json = new StringWriter();
         JsonWriter writer = Json.createWriter(json);
@@ -148,12 +142,73 @@ public class CenterlinesPlugin extends Plugin {
     }
 
     private JsonArrayBuilder getCoordArray(JsonArrayBuilder builder, LatLon c) {
-        return getCoorArray(builder, projection.latlon2eastNorth(c));
+        return getCoordArray(builder, this.projection.latlon2eastNorth(c));
     }
 
-    private static JsonArrayBuilder getCoorArray(JsonArrayBuilder builder, EastNorth c) {
+    private static JsonArrayBuilder getCoordArray(JsonArrayBuilder builder, EastNorth c) {
         return builder != null ? builder : Json.createArrayBuilder()
                 .add(BigDecimal.valueOf(c.getX()).setScale(11, RoundingMode.HALF_UP))
                 .add(BigDecimal.valueOf(c.getY()).setScale(11, RoundingMode.HALF_UP));
+    }
+
+
+    private ArrayList<Way> JSONtoWays (String json) {
+        JsonReader reader = Json.createReader(new StringReader(json));
+        JsonObject collection = reader.readObject();
+        ArrayList<Way> ways = new ArrayList<>();
+
+        JsonArray features = collection.getJsonArray("features");
+
+        for (JsonValue value : features) {
+            // yougottabefuckingkiddingme
+            JsonObject feature = (JsonObject) value;
+            JsonObject geometry = feature.getJsonObject("geometry");
+
+            // bloody compiler, you could say something about using ==, right?
+            if (geometry.getString("type").equals("MultiLineString")) {
+                JsonArray lineStrings = geometry.getJsonArray("coordinates");
+
+                if (lineStrings == null) {
+                    StringWriter foo = new StringWriter();
+                    JsonWriter writer = Json.createWriter(foo);
+
+                    writer.writeObject (geometry);
+
+                    System.err.println("geometry without coords?: "+foo.toString());
+
+                    continue;
+                }
+
+                // NPE!
+                for (JsonValue value1: lineStrings) {
+                    JsonArray lineString = (JsonArray) value1;
+                    Way way = new Way();
+
+                    for (JsonValue value2 : lineString) {
+                        JsonArray point = (JsonArray) value2;
+                        JsonNumber x = point.getJsonNumber(0);
+                        JsonNumber y = point.getJsonNumber(1);
+                        // ERROR: java.lang.ClassCastException: org.glassfish.json.JsonNumberImpl$JsonBigDecimalNumber cannot be cast to javax.json.JsonString
+                        EastNorth en = new EastNorth(x.doubleValue(), y.doubleValue());
+                        LatLon latlon = this.projection.eastNorth2latlon(en);
+                        Node node = new Node(latlon);
+
+                        way.addNode(node);
+                    }
+
+                    ways.add(way);
+                }
+            } else {
+                StringWriter foo = new StringWriter();
+                JsonWriter writer = Json.createWriter(foo);
+
+                writer.writeObject (geometry);
+
+                System.err.println(">"+geometry.getString("type")+"<");
+                System.err.println("Unknown geometry: "+foo.toString());
+            }
+        }
+
+        return ways;
     }
 }

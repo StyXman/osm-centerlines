@@ -1,7 +1,3 @@
-// fuck you, Java. really, go fuck yourself.
-// you force me to create a new file, duplicate import lines,
-// just for 6 fucking lines of code. way to go, piece of shit.
-
 package org.openstreetmap.josm.plugins.centerlines;
 
 import java.awt.event.ActionEvent;

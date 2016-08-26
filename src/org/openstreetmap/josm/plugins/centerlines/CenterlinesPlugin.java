@@ -18,9 +18,13 @@ public class CenterlinesPlugin extends Plugin {
      */
     public CenterlinesPlugin(PluginInformation info) {
         super(info);
-        // init your plugin
 
-        this.menuEntry = new CenterlinesAction();
+        // menu entry
+        this.menuEntry = new CenterlinesAction(this);
         MainMenu.add(Main.main.menu.moreToolsMenu, menuEntry);
+    }
+
+    public void execute() {
+        System.out.println("BAM!");
     }
 }

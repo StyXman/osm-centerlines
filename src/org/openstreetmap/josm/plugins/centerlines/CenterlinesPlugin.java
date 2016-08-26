@@ -13,6 +13,7 @@ import org.openstreetmap.josm.plugins.centerlines.SelectionManager;
 import java.util.Collection;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Way;
 
 
@@ -34,23 +35,26 @@ public class CenterlinesPlugin extends Plugin {
     public void execute() {
         // a lot of code taken from other plugins, like:
         // MichiganLeft
-        Collection<OsmPrimitive> mainSelection = Main.getLayerManager().getEditDataSet().getSelected();
+        DataSet dataSet = Main.getLayerManager().getEditDataSet();
+        Collection<OsmPrimitive> mainSelection = dataSet.getSelected();
 
         for (OsmPrimitive prim : mainSelection) {
-            if (this.isClosedWay (prim)) {
-                System.out.println("BAM!");
+            if (prim instanceof Way) {
+                Way way = (Way) prim; // casting :)
+
+                if (way.isClosed()) {
+                    // simulate some work by creating a new Way that goes from way[0] to way[2]
+                    if (way.getNodes().size()>2) {
+                        System.out.println("BAM!");
+
+                        Way new_way = new Way();
+                        new_way.addNode(way.getNode(0));
+                        new_way.addNode(way.getNode(2));
+
+                        dataSet.addPrimitive(new_way);
+                    }
+                }
             }
         }
-    }
-
-    private boolean isClosedWay(OsmPrimitive prim) {
-        if (prim instanceof Way) {
-            Way way = (Way) prim; // casting :)
-
-            int last = way.getNodes().size() - 1;
-            return ( way.getNode(0) == way.getNode(last) );
-        }
-
-        return false;
     }
 }

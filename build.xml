@@ -15,6 +15,7 @@
     <property name="plugin.author" value="Marcos Dione"/>
     <property name="plugin.class" value="..."/>
     <property name="plugin.description" value="Generates centerlines from riverbanks."/>
+    <property name="plugin.class" value="org.openstreetmap.josm.plugins.centerlines.CenterlinesPlugin"/>
     <property name="plugin.link" value="https://github.com/StyXman/osm-centerlines/"/>
     <property name="plugin.icon" value="images/centerlines.png"/>
     <!--<property name="plugin.early" value="..."/>-->

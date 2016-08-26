@@ -15,6 +15,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import java.util.Collection;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
+import java.util.ArrayList;
 
 import java.io.StringWriter;
 import javax.json.Json;
@@ -57,6 +58,8 @@ public class CenterlinesPlugin extends Plugin {
         DataSet dataSet = Main.getLayerManager().getEditDataSet();
         Collection<OsmPrimitive> mainSelection = dataSet.getSelected();
 
+        ArrayList<Way> valid_ways = new ArrayList<>();
+
         for (OsmPrimitive prim : mainSelection) {
             if (prim instanceof Way) {
                 Way way = (Way) prim; // casting :)
@@ -74,13 +77,15 @@ public class CenterlinesPlugin extends Plugin {
                         dataSet.addPrimitive(new_way);
                     }
                     */
-                    System.out.println(this.wayToJSON(way));
+                    valid_ways.add(way);
                 }
             }
         }
+
+        System.out.println(this.wayToJSON(valid_ways));
     }
 
-    private String wayToJSON(Way w) {
+    private String wayToJSON(ArrayList<Way> ways) {
         /*
 {
     "type": "FeatureCollection",
@@ -101,22 +106,25 @@ public class CenterlinesPlugin extends Plugin {
         StringWriter json = new StringWriter();
         JsonWriter writer = Json.createWriter(json);
 
-        JsonArrayBuilder coords = Json.createArrayBuilder();
-        coords.add(this.getCoordsArray(w.getNodes()));
-
-        // why a Model decision is made based on a View algorithm?
-        // fuck ElemStyles, I'm doing it my way (pun not intended)
-        JsonObjectBuilder way = Json.createObjectBuilder();
-        way.add("type", "Polygon");
-        way.add("coordinates", coords);
-
-        JsonObjectBuilder feature = Json.createObjectBuilder();
-        feature.add("type", "Feature");
-        // I don't give a flying fuck about properties
-        feature.add("geometry", way);
-
         JsonArrayBuilder features = Json.createArrayBuilder();
-        features.add(feature);
+
+        for (Way w : ways) {
+            JsonArrayBuilder coords = Json.createArrayBuilder();
+            coords.add(this.getCoordsArray(w.getNodes()));
+
+            // why a Model decision is made based on a View algorithm?
+            // fuck ElemStyles, I'm doing it my way (pun not intended)
+            JsonObjectBuilder way = Json.createObjectBuilder();
+            way.add("type", "Polygon");
+            way.add("coordinates", coords);
+
+            JsonObjectBuilder feature = Json.createObjectBuilder();
+            feature.add("type", "Feature");
+            // I don't give a flying fuck about properties
+            feature.add("geometry", way);
+
+            features.add(feature);
+        }
 
         JsonObjectBuilder collection = Json.createObjectBuilder();
         collection.add("type", "FeatureCollection");

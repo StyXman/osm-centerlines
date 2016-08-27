@@ -12,7 +12,7 @@
     <!-- Configure these properties (replace "..." accordingly).
          See https://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
     -->
-    <property name="plugin.author" value="Marcos Dione"/>
+    <property name="plugin.author" value="Marcos Dione &lt;mdione@grulic.org.ar&gt;"/>
     <property name="plugin.class" value="..."/>
     <property name="plugin.description" value="Generates centerlines from riverbanks."/>
     <property name="plugin.class" value="org.openstreetmap.josm.plugins.centerlines.CenterlinesPlugin"/>

@@ -114,7 +114,7 @@ def decode (way):
     return wkb.loads (codecs.decode (str (way), 'hex'))
 
 
-def skeleton_medial_from_postgis (connection, way):
+def skeleton_medials_from_postgis (connection, way):
     """Returns the skeleton for way as calculated by PostGIS.
     connection must be a psycopg2 connection and way must be a shapey.geometry."""
     way= wkb.dumps (way)

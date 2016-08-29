@@ -11,7 +11,7 @@ public class CenterlinesAction extends JosmAction {
 
     public CenterlinesAction(CenterlinesPlugin plugin) {
         super(tr("Generate centerline"), "centerlines",
-              tr("Generates a centerline for any closed polygon."),
+              tr("Generates a centerline for all the closed polygons in the selection."),
               null, false);
 
         this.plugin = plugin;

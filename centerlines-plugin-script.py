@@ -22,11 +22,15 @@ else:
 
         start= time.perf_counter ()
         skel, medials= centerlines.skeleton_medials_from_postgis (conn, shape)
-        mid= time.perf_counter ()
+        mid1= time.perf_counter ()
         medials= centerlines.extend_medials (shape, skel, medials)
+        mid2= time.perf_counter ()
+        medials= shapely.geometry.MultiLineString ([ medial.simplify (0.0001, False)
+                                                     for medial in medials ])
         end= time.perf_counter ()
 
-        print ("pg: %.6f; py: %.6f" % (mid-start, end-mid), file=sys.stderr)
+        print ("pg: %.6f; ext: %.6f; simp: %.6f" % (mid1-start, mid2-mid1, end-mid2),
+               file=sys.stderr)
 
         ans['features'].append (dict (type='Feature',
                                       geometry=shapely.geometry.mapping (medials)))

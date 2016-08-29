@@ -16,10 +16,13 @@ import java.util.Collection;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
 import java.util.ArrayList;
+import javax.json.stream.JsonParsingException;
 
+import java.lang.ProcessBuilder;
+import java.lang.ProcessBuilder.Redirect;
+import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.IOException;
-import java.lang.ProcessBuilder;
 import java.lang.Process;
 
 import java.io.StringWriter;
@@ -84,35 +87,48 @@ public class CenterlinesPlugin extends Plugin {
             }
         }
 
-        System.out.println(this.wayToJSON(valid_ways));
+        // System.out.println("-->"+this.wayToJSON(valid_ways));
         String json = call_script(this.wayToJSON(valid_ways));
-        System.out.println(json);
-        ArrayList<Way> centerlines = this.JSONtoWays(json);
-        System.out.println(this.wayToJSON(centerlines));
+        // System.out.println("<--"+json);
+        try {
+            ArrayList<Way> centerlines = this.JSONtoWays(json);
+            // System.out.println("<<-"+this.wayToJSON(centerlines));
 
-        for (Way centerline : centerlines) {
-            for (Node node : centerline.getNodes()) {
-                // TODO: check existence
-                dataSet.addPrimitive(node);
+            for (Way centerline : centerlines) {
+                for (Node node : centerline.getNodes()) {
+                    // TODO: check existence
+                    dataSet.addPrimitive(node);
+                }
+                dataSet.addPrimitive(centerline);
             }
-            dataSet.addPrimitive(centerline);
+        } catch (JsonParsingException e) {
+            System.out.println("Malformed answer: "+json);
         }
     }
 
 
     private String call_script(String input_json) {
-        ProcessBuilder builder = new ProcessBuilder("centerlines.py");
         String ans = "";
+
+        ProcessBuilder builder = new ProcessBuilder("centerlines-plugin-script.py");
+        builder.redirectError(Redirect.INHERIT);
 
         try {
             Process script = builder.start ();
-            InputStream output = script.getInputStream();
+
+            OutputStream stdin =  script.getOutputStream();
+            stdin.write(input_json.getBytes());
+            stdin.flush();
+            stdin.close();
+
+            InputStream stdout = script.getInputStream();
             byte buffer[] = new byte[1024];
 
             int i = 0;
-            while ( (i = output.read(buffer)) > 0 ) {
+            while ( (i = stdout.read(buffer)) > 0 ) {
                 ans+= new String(buffer, 0, i);
             }
+            stdout.close();
         } catch (IOException e) {
             // I can't give a partial answer, so this for the moment
             // TODO: real error handling

@@ -17,6 +17,11 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
 import java.util.ArrayList;
 
+import java.io.InputStream;
+import java.io.IOException;
+import java.lang.ProcessBuilder;
+import java.lang.Process;
+
 import java.io.StringWriter;
 import javax.json.Json;
 import javax.json.JsonWriter;
@@ -80,8 +85,8 @@ public class CenterlinesPlugin extends Plugin {
         }
 
         System.out.println(this.wayToJSON(valid_ways));
-
-        String json = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiLineString\",\"coordinates\":[[[5.44170300000,43.21320700000],[5.44170200000,43.21311500000]]]}}]}";
+        String json = call_script(this.wayToJSON(valid_ways));
+        System.out.println(json);
         ArrayList<Way> centerlines = this.JSONtoWays(json);
         System.out.println(this.wayToJSON(centerlines));
 
@@ -94,6 +99,28 @@ public class CenterlinesPlugin extends Plugin {
         }
     }
 
+
+    private String call_script(String input_json) {
+        ProcessBuilder builder = new ProcessBuilder("centerlines.py");
+        String ans = "";
+
+        try {
+            Process script = builder.start ();
+            InputStream output = script.getInputStream();
+            byte buffer[] = new byte[1024];
+
+            int i = 0;
+            while ( (i = output.read(buffer)) > 0 ) {
+                ans+= new String(buffer, 0, i);
+            }
+        } catch (IOException e) {
+            // I can't give a partial answer, so this for the moment
+            // TODO: real error handling
+            return "";
+        }
+
+        return ans;
+    }
 
     private String wayToJSON(ArrayList<Way> ways) {
         // this API is *so* *fucking* *useless*

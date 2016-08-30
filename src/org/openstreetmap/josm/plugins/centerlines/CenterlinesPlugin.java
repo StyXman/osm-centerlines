@@ -3,6 +3,8 @@ package org.openstreetmap.josm.plugins.centerlines;
 import org.openstreetmap.josm.plugins.Plugin;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.actions.JosmAction;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.plugins.centerlines.CenterlinesAction;
@@ -56,6 +58,9 @@ public class CenterlinesPlugin extends Plugin {
     // private static SelectionManager sm;
     private final Projection projection;
 
+    // holds the Nodes seen so far, for the deduplication function
+    Map<LatLon, Node> seenNodes;
+
     /**
      * Will be invoked by JOSM to bootstrap the plugin
      *
@@ -72,6 +77,7 @@ public class CenterlinesPlugin extends Plugin {
         MainMenu.add(Main.main.menu.moreToolsMenu, menuEntry);
 
         this.projection = ProjectionPreference.wgs84.getProjection();
+        this.seenNodes = new HashMap<>();
     }
 
 
@@ -110,8 +116,10 @@ public class CenterlinesPlugin extends Plugin {
         } catch (JsonParsingException e) {
             System.out.println("Malformed answer: "+json);
         }
-    }
 
+        // release
+        this.seenNodes.clear();
+    }
 
     private String callScript(String input_json) {
         String ans = "";
@@ -232,7 +240,7 @@ public class CenterlinesPlugin extends Plugin {
                         JsonNumber y = point.getJsonNumber(1);
                         EastNorth en = new EastNorth(x.doubleValue(), y.doubleValue());
                         LatLon latlon = this.projection.eastNorth2latlon(en);
-                        Node node = new Node(latlon);
+                        Node node = this.dedupNode (latlon);
 
                         way.addNode(node);
                     }
@@ -251,5 +259,16 @@ public class CenterlinesPlugin extends Plugin {
         }
 
         return ways;
+    }
+
+    private Node dedupNode (LatLon latlon) {
+        Node node = this.seenNodes.get(latlon);
+
+        if (node == null) {
+            node = new Node(latlon);
+            this.seenNodes.put(latlon, node);
+        }
+
+        return node;
     }
 }

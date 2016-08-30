@@ -92,8 +92,9 @@ public class CenterlinesPlugin extends Plugin {
         }
 
         // System.out.println("-->"+this.wayToJSON(valid_ways));
-        String json = call_script(this.wayToJSON(valid_ways));
+        String json = callScript(this.wayToJSON(valid_ways));
         // System.out.println("<--"+json);
+
         try {
             ArrayList<Way> centerlines = this.JSONtoWays(json);
             // System.out.println("<<-"+this.wayToJSON(centerlines));
@@ -112,7 +113,7 @@ public class CenterlinesPlugin extends Plugin {
     }
 
 
-    private String call_script(String input_json) {
+    private String callScript(String input_json) {
         String ans = "";
 
         ProcessBuilder builder = new ProcessBuilder("centerlines-plugin-script.py");

@@ -25,7 +25,7 @@ else:
         mid1= time.perf_counter ()
         medials= centerlines.extend_medials (shape, skel, medials)
         mid2= time.perf_counter ()
-        medials= shapely.geometry.MultiLineString ([ medial.simplify (0.0001, False)
+        medials= shapely.geometry.MultiLineString ([ medial.simplify (0.00001, False)
                                                      for medial in medials ])
         end= time.perf_counter ()
 

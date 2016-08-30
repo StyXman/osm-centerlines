@@ -52,7 +52,8 @@ import javax.json.JsonNumber;
 // GeoJSONWriter
 
 public class CenterlinesPlugin extends Plugin {
-    private static JosmAction menuEntry;
+    public static JosmAction menuEntry;
+    // private static SelectionManager sm;
     private final Projection projection;
 
     /**
@@ -62,6 +63,9 @@ public class CenterlinesPlugin extends Plugin {
      */
     public CenterlinesPlugin(PluginInformation info) {
         super(info);
+
+        // selection manager
+        // this.sm = new SelectionManager(this);
 
         // menu entry
         this.menuEntry = new CenterlinesAction(this);
@@ -96,8 +100,9 @@ public class CenterlinesPlugin extends Plugin {
 
             for (Way centerline : centerlines) {
                 for (Node node : centerline.getNodes()) {
-                    // TODO: check existence
-                    dataSet.addPrimitive(node);
+                    if (!dataSet.getNodes().contains(node)) {
+                        dataSet.addPrimitive(node);
+                    }
                 }
                 dataSet.addPrimitive(centerline);
             }

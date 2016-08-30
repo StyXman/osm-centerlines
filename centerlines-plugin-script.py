@@ -7,6 +7,9 @@ import sys
 import shapely.geometry
 import time
 
+# TODO: parameter
+tolerance= 0.00001
+
 s= sys.stdin.read()
 # print (s, file=sys.stderr)
 try:
@@ -21,15 +24,18 @@ else:
         shape= shapely.geometry.shape (feature['geometry'])
 
         start= time.perf_counter ()
-        skel, medials= centerlines.skeleton_medials_from_postgis (conn, shape)
+        shape= shape.simplify (tolerance, False)
         mid1= time.perf_counter ()
-        medials= centerlines.extend_medials (shape, skel, medials)
+        skel, medials= centerlines.skeleton_medials_from_postgis (conn, shape)
         mid2= time.perf_counter ()
-        medials= shapely.geometry.MultiLineString ([ medial.simplify (0.00001, False)
+        medials= centerlines.extend_medials (shape, skel, medials)
+        mid3= time.perf_counter ()
+        medials= shapely.geometry.MultiLineString ([ medial.simplify (tolerance, False)
                                                      for medial in medials ])
         end= time.perf_counter ()
 
-        print ("pg: %.6f; ext: %.6f; simp: %.6f" % (mid1-start, mid2-mid1, end-mid2),
+        print ("simp1: %.6f; pg: %.6f; ext: %.6f; simp2: %.6f" %
+               (mid1-start, mid2-mid1, mid3-mid2, end-mid3),
                file=sys.stderr)
 
         ans['features'].append (dict (type='Feature',
